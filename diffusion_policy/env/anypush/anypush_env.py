@@ -343,11 +343,18 @@ class AnyPushEnv(gym.Env):
     def add_object(self, position, angle, scale=30, color='LightSlateGray', mask=pymunk.ShapeFilter.ALL_MASKS(), object_name='a'):
         module_name = "diffusion_policy.env.anypush.objects"
         function_name = f"add_{object_name.upper()}"
+        if object_name.isdigit():
+            function_name = "add_digit"
+            digit = int(object_name)
+
         try:
             module = importlib.import_module(module_name)
             add_function = getattr(module, function_name)
         except ImportError:
             raise ImportError(f"Failed to import module {module_name} or function {function_name}")
 
-        body = add_function(self, position, angle, scale, color, mask)
+        if object_name.isdigit():
+            body = add_function(self, digit, position, angle, scale, color, mask)
+        else:
+            body = add_function(self, position, angle, scale, color, mask)
         return body
