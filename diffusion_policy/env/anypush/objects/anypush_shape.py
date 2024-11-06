@@ -2,7 +2,7 @@ import pymunk
 import pygame
 import math
 
-def add_shape(self, shape_type, position, angle, scale=50, color='LightSlateGray', mask=pymunk.ShapeFilter.ALL_MASKS()):
+def add_shape(self, shape_type, position, angle, scale=50, color='LightSlateGray', mask=pymunk.ShapeFilter.ALL_MASKS(), body_type=pymunk.Body.DYNAMIC):
     mass = 1
     body = pymunk.Body()
     total_inertia = 0
@@ -53,6 +53,7 @@ def add_shape(self, shape_type, position, angle, scale=50, color='LightSlateGray
     body.position = position
     body.angle = angle
     body.friction = 1
+    body.body_type = body_type
 
     # Add body and shape to space
     self.space.add(body, shape)

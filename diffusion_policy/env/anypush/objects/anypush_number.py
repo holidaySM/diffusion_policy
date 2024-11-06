@@ -1,7 +1,7 @@
 import pymunk
 import pygame
 
-def add_digit(self, digit, position, angle, scale=50, color='LightSlateGray', mask=pymunk.ShapeFilter.ALL_MASKS()):
+def add_digit(self, digit, position, angle, scale=50, color='LightSlateGray', mask=pymunk.ShapeFilter.ALL_MASKS(), body_type=pymunk.Body.DYNAMIC):
     mass = 1
     width = scale * 2.5          
     height = scale * 5           
@@ -83,11 +83,12 @@ def add_digit(self, digit, position, angle, scale=50, color='LightSlateGray', ma
         shapes.append(shape)
 
     # 바디 속성 설정
-    body.mass = total_mass
+    body.mass = total_mass 
     body.moment = total_inertia
     body.position = position
     body.angle = angle
-    body.friction = 1
+    body.friction = 1 
+    body.body_type = body_type
 
     # 스페이스에 추가
     self.space.add(body, *shapes)

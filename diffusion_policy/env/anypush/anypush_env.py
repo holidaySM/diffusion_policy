@@ -13,6 +13,30 @@ import skimage.transform as st
 from diffusion_policy.env.anypush.pymunk_override import DrawOptions
 import importlib
 
+OBJECT_NAME_LIST = [
+    't',
+    '0',
+    '1',
+    '2',
+    '3',
+    '4',
+    '5',
+    '6',
+    '7',
+    '8',
+    '9',
+    'ellipse',
+    'rectangle',
+    'reg3',
+    'reg4',
+    'reg5',
+    'reg6',
+    'reg7',
+    'reg8',
+    'reg9',
+    'reg10'
+]
+
 def pymunk_to_shapely(body, shapes):
     geoms = list()
     for shape in shapes:
@@ -35,7 +59,8 @@ class AnyPushEnv(gym.Env):
             render_action=True,
             render_size=96,
             reset_to_state=None,
-            object_name='a'
+            object_name='a',
+            use_obstacles=True
         ):
         self._seed = None
         self.seed()
@@ -84,7 +109,9 @@ class AnyPushEnv(gym.Env):
         self.render_buffer = None
         self.latest_action = None
         self.reset_to_state = reset_to_state
-    
+
+        self.use_obstacles = use_obstacles
+        self.obstacles = []
     def reset(self):
         seed = self._seed
         self._setup()
@@ -300,7 +327,9 @@ class AnyPushEnv(gym.Env):
             self._add_segment((506, 5), (506, 506), 2),
             self._add_segment((5, 506), (506, 506), 2)
         ]
+        base = self._add_segment((5, 5), (506, 5), 2)
         self.space.add(*walls)
+        self.space.add(base)
 
         # Add agent, block, and goal zone.
         self.agent = self.add_circle((256, 400), 15)
@@ -309,9 +338,25 @@ class AnyPushEnv(gym.Env):
         # self.goal_pose = np.array([256,256,np.pi/4])  # x, y, theta (in radians)
         rs = np.random.RandomState(seed=self._seed)
         self.goal_pose = np.array([
-            rs.randint(50, 450), rs.randint(50, 450),
+            rs.randint(80, 420), rs.randint(80, 420),
             rs.randn() * 2 * np.pi - np.pi
         ])
+
+        if self.use_obstacles:
+            # Add additional objects as obstacles
+            num_obstacles = 3#rs.randint(0, 3)
+            # if obstacle is too close to the goal, regenerate
+            # body_types = rs.randint(0, 2, num_obstacles)
+            object_names = rs.choice(OBJECT_NAME_LIST, num_obstacles)
+            for i in range(num_obstacles):
+                pos = (rs.randint(80, 420), rs.randint(80, 420))
+                rot = rs.randn() * 2 * np.pi - np.pi
+                while (pos[0] - self.goal_pose[0])**2 + (pos[1] - self.goal_pose[1])**2 < 160**2:
+                    pos = (rs.randint(80, 420), rs.randint(80, 420))
+                # body_type = pymunk.Body.STATIC if body_types[i] == 0 else pymunk.Body.DYNAMIC
+                obstacle = self.add_object(pos, rot, scale=20, color='Red', object_name=object_names[i])
+                self.obstacles.append(obstacle)  # 'b' is an example; replace with desired object name
+
 
         # Add collision handling
         self.collision_handeler = self.space.add_collision_handler(0, 0)
@@ -320,9 +365,10 @@ class AnyPushEnv(gym.Env):
 
         self.max_score = 50 * 100
         self.success_threshold = 0.95    # 95% coverage.
-
+    
     def _add_segment(self, a, b, radius):
         shape = pymunk.Segment(self.space.static_body, a, b, radius)
+        shape.friction = 0.1
         shape.color = pygame.Color('LightGray')    # https://htmlcolorcodes.com/color-names
         return shape
 
@@ -330,6 +376,7 @@ class AnyPushEnv(gym.Env):
         body = pymunk.Body(body_type=pymunk.Body.KINEMATIC)
         body.position = position
         body.friction = 1
+        body.velocity = Vec2d(0, 0)
         shape = pymunk.Circle(body, radius)
         shape.color = pygame.Color('RoyalBlue')
         self.space.add(body, shape)
@@ -345,7 +392,7 @@ class AnyPushEnv(gym.Env):
         self.space.add(body, shape)
         return body
 
-    def add_object(self, position, angle, scale=30, color='LightSlateGray', mask=pymunk.ShapeFilter.ALL_MASKS(), object_name='a'):
+    def add_object(self, position, angle, scale=30, color='LightSlateGray', mask=pymunk.ShapeFilter.ALL_MASKS(), object_name='a', body_type=pymunk.Body.DYNAMIC):
         module_name = "diffusion_policy.env.anypush.objects"
         function_name = f"add_{object_name.upper()}"
         if object_name.isdigit():
@@ -360,8 +407,13 @@ class AnyPushEnv(gym.Env):
         except ImportError:
             raise ImportError(f"Failed to import module {module_name} or function {function_name}")
 
+        #digit
         if object_name.isdigit():
-            body = add_function(self, digit, position, angle, scale, color, mask)
+            body = add_function(self, digit, position, angle, scale, color, mask, body_type)
+        #shape  
         elif object_name in ['ellipse', 'rectangle'] or 'reg' in object_name:
-            body = add_function(self, object_name, position, angle, scale, color, mask)
+            body = add_function(self, object_name, position, angle, scale, color, mask, body_type)
+        #alphabet
+        else:
+            body = add_function(self, position, angle, scale, color, mask, body_type)
         return body

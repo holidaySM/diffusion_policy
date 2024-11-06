@@ -1,7 +1,7 @@
 import pymunk
 import pygame
 
-def add_T(self, position, angle, scale=30, color='LightSlateGray', mask=pymunk.ShapeFilter.ALL_MASKS()):
+def add_T(self, position, angle, scale=30, color='LightSlateGray', mask=pymunk.ShapeFilter.ALL_MASKS(), body_type=pymunk.Body.DYNAMIC):
     mass = 1
     length = 4
     vertices1 = [(-length*scale/2, scale),
@@ -25,5 +25,8 @@ def add_T(self, position, angle, scale=30, color='LightSlateGray', mask=pymunk.S
     body.position = position
     body.angle = angle
     body.friction = 1
+    body.body_type = body_type
+    body.collision_type = 1
+
     self.space.add(body, shape1, shape2)
     return body
