@@ -5,7 +5,7 @@ def add_digit(self, digit, position, angle, scale=50, color='LightSlateGray', ma
     mass = 1
     width = scale * 2.5          
     height = scale * 5           
-    thickness = scale * 0.8
+    thickness = scale * 0.7
 
     # 막대 정의 (9개의 막대 - 상단, 중앙, 하단, 좌상, 좌하, 우상, 우하, 왼쪽중앙, 오른쪽중앙)
     bar_vertices = {
