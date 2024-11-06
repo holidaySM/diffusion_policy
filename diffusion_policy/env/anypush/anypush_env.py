@@ -346,6 +346,8 @@ class AnyPushEnv(gym.Env):
         if object_name.isdigit():
             function_name = "add_digit"
             digit = int(object_name)
+        elif object_name in ['ellipse', 'rectangle'] or 'reg' in object_name:
+            function_name = "add_shape"
 
         try:
             module = importlib.import_module(module_name)
@@ -355,6 +357,6 @@ class AnyPushEnv(gym.Env):
 
         if object_name.isdigit():
             body = add_function(self, digit, position, angle, scale, color, mask)
-        else:
-            body = add_function(self, position, angle, scale, color, mask)
+        elif object_name in ['ellipse', 'rectangle'] or 'reg' in object_name:
+            body = add_function(self, object_name, position, angle, scale, color, mask)
         return body
