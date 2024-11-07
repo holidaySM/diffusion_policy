@@ -344,7 +344,7 @@ class AnyPushEnv(gym.Env):
 
         if self.use_obstacles:
             # Add additional objects as obstacles
-            num_obstacles = 3#rs.randint(0, 3)
+            num_obstacles = rs.randint(0, 5)
             # if obstacle is too close to the goal, regenerate
             # body_types = rs.randint(0, 2, num_obstacles)
             object_names = rs.choice(OBJECT_NAME_LIST, num_obstacles)
@@ -352,7 +352,7 @@ class AnyPushEnv(gym.Env):
             for i in range(num_obstacles):
                 pos = (rs.randint(80, 420), rs.randint(80, 420))
                 rot = rs.randn() * 2 * np.pi - np.pi
-                while (pos[0] - self.goal_pose[0])**2 + (pos[1] - self.goal_pose[1])**2 < 160**2:
+                while (pos[0] - self.goal_pose[0])**2 + (pos[1] - self.goal_pose[1])**2 < 150**2:
                     pos = (rs.randint(80, 420), rs.randint(80, 420))
                 # body_type = pymunk.Body.STATIC if body_types[i] == 0 else pymunk.Body.DYNAMIC
                 obstacle = self.add_object(pos, rot, scale=object_scales[i], color='Red', object_name=object_names[i])
