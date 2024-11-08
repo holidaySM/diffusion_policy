@@ -60,7 +60,7 @@ class AnyPushEnv(gym.Env):
             render_size=96,
             reset_to_state=None,
             object_name='a',
-            use_obstacles=True
+            use_obstacles=True,
         ):
         self._seed = None
         self.seed()
@@ -113,7 +113,7 @@ class AnyPushEnv(gym.Env):
         self.use_obstacles = use_obstacles
         self.obstacles = []
     def reset(self):
-        seed = self._seed
+        seed = self._seed + 1
         self._setup()
         if self.block_cog is not None:
             self.block.center_of_gravity = self.block_cog
@@ -338,7 +338,7 @@ class AnyPushEnv(gym.Env):
         # self.goal_pose = np.array([256,256,np.pi/4])  # x, y, theta (in radians)
         rs = np.random.RandomState(seed=self._seed)
         self.goal_pose = np.array([
-            rs.randint(80, 420), rs.randint(80, 420),
+            rs.randint(120, 380), rs.randint(120, 380),
             rs.randn() * 2 * np.pi - np.pi
         ])
 
