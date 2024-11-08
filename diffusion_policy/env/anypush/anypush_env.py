@@ -336,7 +336,7 @@ class AnyPushEnv(gym.Env):
         self.block = self.add_object((256, 300), 0, object_name=self.object_name)
         self.goal_color = pygame.Color('LightGreen')
         # self.goal_pose = np.array([256,256,np.pi/4])  # x, y, theta (in radians)
-        rs = np.random.RandomState(seed=self._seed)
+        rs = np.random.RandomState()
         self.goal_pose = np.array([
             rs.randint(120, 380), rs.randint(120, 380),
             rs.randn() * 2 * np.pi - np.pi
